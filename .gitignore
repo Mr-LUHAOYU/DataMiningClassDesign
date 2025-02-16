@@ -1,5 +1,2 @@
-*.html
-*.csv
-*.pdf
-*.docx
+.idea
 *.ipynb
