@@ -11,7 +11,7 @@ for col in df.columns:
         df[col] = df[col].apply(lambda x: text2number[col][x])
     elif col == 'RaceEthnicityCategory':
         df[col] = df[col].apply(lambda x: RaceEthnicityCategory_dict[x])
-    else:
+    elif len(df[col].unique()) == 2:
         df[col] = df[col].apply(lambda x: 1 if x == 'Yes' else 0)
 
 df.to_csv('../dataset/encoded_data.csv', index=False)
