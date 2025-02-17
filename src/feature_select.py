@@ -1,23 +1,23 @@
-import lightgbm as lgb
 import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.inspection import permutation_importance
 
-# 读取数据
+pd.options.display.float_format = '{:.4f}'.format
+
 df = pd.read_csv('../dataset/train.csv')
-X = df.drop(columns='HadHeartAttack')
+X = df.drop('HadHeartAttack', axis=1)
 y = df['HadHeartAttack']
 
-# 假设 X 是特征数据，y 是目标变量
-train_data = lgb.Dataset(X, label=y)
-params = {'objective': 'binary', 'metric': 'binary_error'}
+model = RandomForestClassifier()
+model.fit(X, y)
+perm_importance = permutation_importance(model, X, y)
 
-# 训练模型
-model = lgb.train(params, train_data, 100)
+feature_importances = model.feature_importances_
+importances_mean = perm_importance.importances_mean
 
-# 获取特征的重要性
-importances = model.feature_importance()
-
-# 根据重要性排序特征
-indices = importances.argsort()[::-1]
-X_new = X.iloc[:, indices[:5]]  # 选择前 5 个重要特征
-
-print(X_new.columns)  # 输出前 5 个重要特征的名称
+columns = X.columns
+feature_importances = pd.DataFrame(feature_importances, index=columns)
+importances_mean = pd.DataFrame(importances_mean, index=columns)
+corr = pd.concat([feature_importances, importances_mean], axis=1)
+corr.columns = ['feature_importances', 'perm_importance']
+corr.to_csv('../asserts/feature_importance.csv', index=True)
