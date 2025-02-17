@@ -1,0 +1,11 @@
+{
+    'Sex' : ['Male', 'Female'],
+    'GeneralHealth' : ['Poor', 'Fair', 'Good', 'Very good', 'Excellent'],
+    'LastCheckupTime' : ['Within past year (anytime less than 12 months ago)', 'Within past 2 years (1 year but less than 2 years ago)', 'Within past 5 years (2 years but less than 5 years ago)', '5 or more years ago'],
+    'RemovedTeeth' : ['None of them', '1 to 5', '6 or more, but not all', 'All'],
+    'HadDiabetes' : ['No', 'No, pre-diabetes or borderline diabetes', 'Yes, but only during pregnancy (female)', 'Yes'],
+    'SmokerStatus' : ['Never smoked', 'Former smoker', 'Current smoker - now smokes some days', 'Current smoker - now smokes every day'],
+    'ECigaretteUsage' : ['Never used e-cigarettes in my entire life', 'Use them some days', 'Use them every day', 'Not at all (right now)'],
+    'AgeCategory' : ["Age 18 to 24", "Age 25 to 29", "Age 30 to 34", "Age 35 to 39", "Age 40 to 44", "Age 45 to 49", "Age 50 to 54", "Age 55 to 59", "Age 60 to 64", "Age 65 to 69", "Age 70 to 74", "Age 75 to 79", "Age 80 or older"],
+    'CovidPos' : ['No', 'Yes', 'Tested positive using home test without a health professional']
+}
