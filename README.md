@@ -13,7 +13,155 @@ lhy：TODO（描述预处理流程与步骤、可视化结果与分析）
 
 ### 模型横向对比
 
-lsb：给出调研报告与分析
+#### 调研报告与分析
+
+##### 一、传统机器学习模型
+
+1. **XGBoost/LightGBM**
+
+**理由：**
+
+- **处理不平衡能力**：支持`scale_pos_weight`参数直接调整正负样本权重（官方文档建议设置为sum(negative)/sum(positive)）
+- **特征兼容性**：原生支持混合类型特征（数值型+类别型），无需完整独热编码
+- **高效性**：基于直方图的决策树分裂策略，适合大数据量场景
+- **可解释性**：提供特征重要性排序（`feature_importances_`）
+
+**实现方案：**
+
+```python
+from lightgbm import LGBMClassifier
+
+model = LGBMClassifier(
+    scale_pos_weight=19,  # 负样本数/正样本数≈19:1
+    objective='binary',
+    metric='auc',
+    n_estimators=1000,
+    learning_rate=0.05,
+    max_depth=6,
+    subsample=0.8,
+    colsample_bytree=0.7
+)
+```
+
+**官方文档：**
+
+- [LightGBM不平衡分类指南](https://lightgbm.readthedocs.io/en/latest/Parameters.html#scale_pos_weight)
+
+2. **随机森林 + SMOTE**
+
+**理由：**
+
+- **鲁棒性**：对噪声数据和缺失值不敏感
+- **组合优化**：通过SMOTE过采样解决类别不平衡问题
+
+**实现方案：**
+
+```python
+from imblearn.pipeline import Pipeline
+from sklearn.ensemble import RandomForestClassifier
+from imblearn.over_sampling import SMOTE
+
+pipeline = Pipeline([
+    ('smote', SMOTE(sampling_strategy=0.3)),  # 调整正样本比例至30%
+    ('rf', RandomForestClassifier(
+        class_weight='balanced',
+        n_estimators=500,
+        max_depth=10,
+        max_features='sqrt'
+    ))
+])
+```
+
+**官方文档：**
+
+- [Scikit-learn类权重设置](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html)
+- [SMOTE算法实现](https://imbalanced-learn.org/stable/references/generated/imblearn.over_sampling.SMOTE.html)
+
+##### 二、深度学习模型
+
+1. **深度残差网络（ResNet变体）**
+
+**理由：**
+
+- **特征交互**：通过残差连接捕捉高阶特征交叉（如BMI与Age的复合影响）
+- **正则化能力**：BatchNorm+Dropout防止过拟合
+- **类别平衡**：自定义Focal Loss缓解样本不均衡
+
+**实现方案：**
+
+```python
+import tensorflow as tf
+from tensorflow.keras.layers import Dense, BatchNormalization, Dropout, Input, Add
+
+def residual_block(x, units):
+    shortcut = x
+    x = Dense(units)(x)
+    x = BatchNormalization()(x)
+    x = tf.keras.activations.relu(x)
+    x = Dropout(0.3)(x)
+    x = Dense(units)(x)
+    return Add()([shortcut, x])
+
+inputs = Input(shape=(n_features,))
+x = Dense(128)(inputs)
+x = residual_block(x, 128)
+x = Dense(64)(x)
+outputs = Dense(1, activation='sigmoid')(x)
+
+model = tf.keras.Model(inputs=inputs, outputs=outputs)
+model.compile(
+    optimizer=tf.keras.optimizers.Adam(0.001),
+    loss=tf.keras.losses.BinaryFocalCrossentropy(gamma=2.0),  # 聚焦困难样本
+    metrics=[tf.keras.metrics.AUC(name='auc')]
+)
+```
+
+**官方文档：**
+
+- [Focal Loss实现](https://www.tensorflow.org/addons/api_docs/python/tfa/losses/sigmoid_focal_crossentropy)
+
+2. **Wide & Deep 架构**
+
+**理由：**
+
+- **双路学习**：Wide部分记忆高频特征组合，Deep部分泛化潜在模式
+- **医疗数据适配**：适合既有明确风险因子（如AgeCategory）又需挖掘隐含关联的场景
+
+**实现方案：**
+
+```python
+wide_input = tf.keras.layers.Concatenate()([
+    Input(shape=(1,)),  # 例如AgeCategory
+    Input(shape=(1,))   # 例如BMI
+])
+
+deep_input = Input(shape=(n_features,))
+x = Dense(256, activation='relu')(deep_input)
+x = Dense(128, activation='relu')(x)
+
+merged = tf.keras.layers.Concatenate()([wide_input, x])
+outputs = Dense(1, activation='sigmoid')(merged)
+
+model = tf.keras.Model(inputs=[wide_input, deep_input], outputs=outputs)
+```
+
+##### 三、模型选择建议矩阵
+
+| 考量维度       | XGBoost/LightGBM   | 随机森林+SMOTE  | 深度残差网络      | Wide & Deep     |
+| -------------- | ------------------ | --------------- | ----------------- | --------------- |
+| 训练速度       | ⭐⭐⭐⭐⭐（最快）      | ⭐⭐⭐⭐            | ⭐⭐                | ⭐⭐              |
+| 可解释性       | ⭐⭐⭐⭐（特征重要性） | ⭐⭐⭐⭐            | ⭐                 | ⭐⭐              |
+| 处理不平衡能力 | ⭐⭐⭐⭐（内置权重）   | ⭐⭐⭐（依赖采样） | ⭐⭐⭐（Focal Loss） | ⭐⭐⭐             |
+| 特征工程需求   | ⭐⭐（需基本编码）   | ⭐⭐（需编码）    | ⭐⭐⭐（自动学习）   | ⭐⭐⭐（部分自动） |
+
+##### 四、性能优化建议
+
+- 树模型调参重点：限制最大深度、增大min_child_weight
+- 深度学习优化：使用学习率预热、SWA提升泛化性
+
+建议优先尝试LightGBM/XGBoost方案，在获得基线性能后，再通过深度学习模型探索非线性关系的潜在价值。实际部署时建议采用模型集成策略。
+
+#### 实验结果与分析
 
 dwj：给出实验结果与分析
 
