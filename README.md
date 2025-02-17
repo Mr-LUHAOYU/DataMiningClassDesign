@@ -9,7 +9,56 @@
 
 ### 数据预处理
 
-lhy：TODO（描述预处理流程与步骤、可视化结果与分析）
+观察数据表，数据类型主要分为以下三类：
+
+1. 数值型 
+2. 具有序关系的文本类型（包括二值型）
+3. 不具备序关系的文本类型（仅两个：State, RaceEthnicityCategory）
+
+数值型不特别处理。具有序关系的文本则使用自然数编码。[顺序编码文档](constants/map.txt)。
+
+对于 State 字段，考虑到模型需要在更大的范围中应用，地域不宜作为模型的特征之一。
+
+对于 RaceEthnicityCategory 字段，采用二进制编码表示其人种。
+
+```python
+for col in df.columns:
+    if col in text2number:
+        df[col] = df[col].apply(lambda x: text2number[col][x])
+    elif col == 'RaceEthnicityCategory':
+        df[col] = df[col].apply(lambda x: RaceEthnicityCategory_dict[x])
+    elif len(df[col].unique()) == 2:
+        df[col] = df[col].apply(lambda x: 1 if x == 'Yes' else 0)
+
+```
+
+为了避免数据范围对模型参数的影响，我们采取 Min-Max 归一化。
+
+### 数据划分
+
+考虑到类别不平衡的问题，我们按照是否患有心脏病分离数据。
+
+```python
+common = normalized[normalized['HadHeartAttack'] == 0]
+rare = normalized[normalized['HadHeartAttack'] == 1]
+```
+
+然后将两类分别按照 train : val : test = 6 : 2 : 2 的比例划分数据集。
+
+```python
+def split_data(data, train_size=0.6, val_size=0.2, test_size=0.2):
+    train_val, test = train_test_split(data, test_size=test_size, random_state=random_state)
+    train, val = train_test_split(train_val, test_size=val_size / (train_size + val_size), random_state=random_state)
+    return train, val, test
+```
+
+最后再将两部分合并。
+
+```python
+train = pd.concat([train_common, train_rare])
+val = pd.concat([val_common, val_rare])
+test = pd.concat([test_common, test_rare])
+```
 
 ### 模型横向对比
 
