@@ -322,6 +322,117 @@ dwj：给出实验结果与分析
 
 ## 任务二、心脏病预防分析
 
+### 相关性分析
+
+本节分二值型数据、整数型或多分类型数据 以及 连续型数据三部分。
+
+#### 二值形数据
+
+```python
+'Sex', 'PhysicalActivities', 'HadHeartAttack', 'HadAngina', 'HadStroke', 
+'HadAsthma', 'HadSkinCancer', 'HadCOPD', 'HadDepressiveDisorder', 'HadKidneyDisease',
+'HadArthritis', 'DeafOrHardOfHearing', 'BlindOrVisionDifficulty', 'DifficultyConcentrating', 
+'DifficultyWalking', 'DifficultyDressingBathing', 'DifficultyErrands', 'ChestScan', 
+'AlcoholDrinkers', 'HIVTesting', 'FluVaxLast12', 'PneumoVaxEver', 'HighRiskLastYear'
+```
+
+对于任意一个属性 $X$, 考察关联规则 $X \rightarrow HadHeartAttack$ 的置信度与提升度。
+
+| Column                    | Confidence           | Lift               |
+| :------------------------ | :------------------- | :----------------- |
+| HadAngina                 | 0.5040565686639374   | 8.29325253366142   |
+| HadStroke                 | 0.18742091551916637  | 4.559896012446236  |
+| HadKidneyDisease          | 0.1410494975809453   | 3.07526404589324   |
+| HadCOPD                   | 0.2251581689616673   | 2.916387440470007  |
+| DifficultyDressingBathing | 0.09646445850390771  | 2.845608994010597  |
+| DifficultyWalking         | 0.3819129140305173   | 2.604906541048404  |
+| DifficultyErrands         | 0.15943431336062525  | 2.394064248145004  |
+| DeafOrHardOfHearing       | 0.19910681056940827  | 2.329053620668836  |
+| BlindOrVisionDifficulty   | 0.11566803126163007  | 2.3275707825166654 |
+| ChestScan                 | 0.768440640119092    | 1.81433112440863   |
+| HadArthritis              | 0.5779679940454038   | 1.675162775008404  |
+| HadSkinCancer             | 0.14291030889467807  | 1.6725693361346508 |
+| DifficultyConcentrating   | 0.1729065872720506   | 1.6223807938155774 |
+| PneumoVaxEver             | 0.651135094901377    | 1.6036675441259218 |
+| HadAsthma                 | 0.18362486043915147  | 1.236709338195979  |
+| HadDepressiveDisorder     | 0.24562709341272795  | 1.1937903748634167 |
+| FluVaxLast12              | 0.6271678451804987   | 1.176080731173181  |
+| HIVTesting                | 0.31470040937848903  | 0.9162294870667512 |
+| PhysicalActivities        | 0.6337179010048382   | 0.8149183319970535 |
+| AlcoholDrinkers           | 0.39642724227763304  | 0.7208039717060304 |
+| Sex                       | 0.3671008559732043   | 0.7066284340803191 |
+| HighRiskLastYear          | 0.025158168961667286 | 0.585236672114912  |
+
+如果你希望自己操作表格来了解评价指标的排序，或者使用其他表格的功能，你可以参考表格： [binary_classification_correlation.csv](asserts\binary_classification_correlation.csv) 
+
+**分析结果：**
+
+- **HadAngina**：具有较高的置信度（0.504）和提升度（8.29），表明患有心绞痛的人群中有较高比例患有心脏病。这可能是因为心绞痛是心脏病的早期症状或并发症。
+- **HadStroke**：较低的置信度（0.187）和提升度（4.56）表明中风和心脏病之间有一定的关联，尽管相关性相较于心绞痛较弱。
+- **ChestScan**：具有较高的置信度（0.768）和较低的提升度（1.81），表明通过胸部扫描检测到的健康问题与心脏病相关，但提升度较低可能表明胸部扫描结果对于预测心脏病的提升效能不如其他指标。
+- **PhysicalActivities** 和 **Sex**：这两个特征显示出较低的提升度（<1.0），表明这些变量对心脏病的预测贡献相对较小。
+
+这些结果揭示了具有直接关系的因素，如心绞痛和心脏病，而一些生活习惯（如锻炼、性别）则对预测心脏病的贡献较小。
+
+#### 整数型或多分类型数据
+
+```python
+'GeneralHealth', 'PhysicalHealthDays', 'MentalHealthDays', 'LastCheckupTime', 'SleepHours', 
+'RemovedTeeth', 'HadDiabetes', 'SmokerStatus', 'ECigaretteUsage', 'RaceEthnicityCategory', 
+'AgeCategory', 'TetanusLast10Tdap', 'CovidPos'
+```
+
+这部分数据采用 **卡方检验** 和 **Cramér's V** 分析其与心脏病之间的相关性。
+
+| Column                | Chi2 Statistic     | P-value                 | Cramér's V           |
+| :-------------------- | :----------------- | :---------------------- | :------------------- |
+| GeneralHealth         | 9893.915405890815  | 0.0                     | 0.2005382053427175   |
+| PhysicalHealthDays    | 4504.004562288446  | 0.0                     | 0.1353045616190594   |
+| MentalHealthDays      | 652.1276988304685  | 4.540413350732394e-118  | 0.051484838074468145 |
+| LastCheckupTime       | 1240.5932733282991 | 1.1420838066709514e-268 | 0.07101134501949781  |
+| SleepHours            | 1674.2009084354595 | 0.0                     | 0.08249294615175332  |
+| RemovedTeeth          | 6996.868972027133  | 0.0                     | 0.16864167154362364  |
+| HadDiabetes           | 5345.73706749969   | 0.0                     | 0.14740656453876474  |
+| SmokerStatus          | 2241.3421716655416 | 0.0                     | 0.09544806071432936  |
+| ECigaretteUsage       | 114.24995520794386 | 1.3352362106950711e-24  | 0.021549690983575755 |
+| RaceEthnicityCategory | 195.91695159437063 | 2.8354859723996284e-41  | 0.028219481834577224 |
+| AgeCategory           | 7925.092831877682  | 0.0                     | 0.17947964700061586  |
+| TetanusLast10Tdap     | 412.31579538386654 | 4.7573727372082324e-89  | 0.04093813123566741  |
+| CovidPos              | 210.97187201981063 | 1.541842712734372e-46   | 0.029283656635577554 |
+
+如果你希望自己操作表格来了解评价指标的排序，或者使用其他表格的功能，你可以参考表格：  [natural_numbers_correlation.csv](asserts\natural_numbers_correlation.csv) 
+
+**分析结果：**
+
+- **GeneralHealth**：具有极高的卡方值（9893.92）和显著的低 p 值（0.0），Cramér's V 值为0.20，表明健康状况与心脏病的关系显著。更差的健康状况通常伴随更高的心脏病风险。
+- **PhysicalHealthDays**：卡方值也很高（4504.00），且具有显著的关系（p值为0.0）。这表明身体健康状态对心脏病的预测具有较高的价值。
+- **SmokerStatus** 和 **HadDiabetes**：这些变量也显示出显著的统计相关性，表明吸烟和糖尿病与心脏病之间的联系。
+- **CovidPos**：卡方值较低，p值也较高，Cramér's V 值为0.03，表明 COVID-19 与心脏病之间的相关性较弱。
+
+通过分析这些整数型或多分类型数据，我们可以发现身体健康状况、吸烟状况和糖尿病与心脏病有显著的相关性。特别是一般健康状况的差与心脏病风险呈现明显正相关。
+
+####  连续型数据
+
+```python
+'HeightInMeters', 'WeightInKilograms', 'BMI'
+```
+
+尽管这里的三个属性可以通过常识判断，我们还是使用点双列相关系数分析一下。
+
+| Column            | Point-Biserial Correlation | P-value                |
+| :---------------- | :------------------------- | :--------------------- |
+| HeightInMeters    | 0.023058562103926115       | 2.680270217356652e-30  |
+| WeightInKilograms | 0.03843558794581402        | 4.378522592945912e-81  |
+| BMI               | 0.03041348110560678        | 1.9223816884591188e-51 |
+
+如果你希望自己操作表格来了解评价指标的排序，或者使用其他表格的功能，你可以参考表格：  [real_numbers_correlation.csv](asserts\real_numbers_correlation.csv) 
+
+**分析结果：**
+
+- **HeightInMeters**、**WeightInKilograms** 和 **BMI** 都表现出一定的相关性。
+
+这说明 $BMI$ 与心脏健康存在密切联系。
+
 **心脏病预防策略**
 
 1. **Teeth (牙齿健康)**  
