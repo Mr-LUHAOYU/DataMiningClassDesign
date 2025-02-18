@@ -279,13 +279,42 @@ acc = accuracy_score(y_test, y_pred)
 print("rf 的准确率为：%f" % acc)
 ```
 
-##### 深度残差网络
+##### FNN
 
-TODO：dwj
+准确率为：0.9493
 
-##### Wide & Deep 架构
+```python
+class MLP(nn.Module):
+    def __init__(self, input_dim):
+        super(MLP, self).__init__()
+        self.fc1 = nn.Linear(input_dim, 64)
+        self.fc2 = nn.Linear(64, 32)
+        self.fc3 = nn.Linear(32, 1)
+        self.sigmoid = nn.Sigmoid()
 
-TODO：dwj
+    def forward(self, x):
+        x = torch.relu(self.fc1(x))
+        x = torch.relu(self.fc2(x))
+        x = self.fc3(x)
+        return self.sigmoid(x)
+```
+
+##### TabNet
+
+准确率为：0.9457
+
+```python
+model = TabNetClassifier(
+    n_d=8,
+    n_a=8,
+    n_steps=3,
+    gamma=1.5,
+    lambda_sparse=0.001,
+    optimizer_fn=torch.optim.Adam,
+    optimizer_params=dict(lr=2e-2),
+    mask_type="sparsemax"
+)
+```
 
 ### 模型纵向调优
 
