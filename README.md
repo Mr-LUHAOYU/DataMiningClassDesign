@@ -231,7 +231,43 @@ model = tf.keras.Model(inputs=[wide_input, deep_input], outputs=outputs)
 
 #### 实验结果与分析
 
-dwj：给出实验结果与分析
+##### LightGBM
+
+准确率为：0.9493
+
+```python
+# 训练
+gbm = lgb.LGBMClassifier(random_state=42)
+gbm.fit(X_train, y_train, eval_set=[(X_valid, y_valid)], eval_metric="l1", callbacks=[lgb.early_stopping(5)])
+
+# 测试
+y_pred = gbm.predict(X_test, num_iteration=gbm.best_iteration_)
+acc = accuracy_score(y_test, y_pred)
+print(f"准确率：{acc}")
+```
+
+##### 随机森林
+
+准确率为：0.9482
+
+```python
+# 训练
+rf = RandomForestClassifier(random_state=42)
+rf.fit(X_train, y_train)
+
+# 测试
+y_pred = rf.predict(X_test)
+acc = accuracy_score(y_test, y_pred)
+print("rf 的准确率为：%f" % acc)
+```
+
+##### 深度残差网络
+
+TODO：dwj
+
+##### Wide & Deep 架构
+
+TODO：dwj
 
 ### 模型纵向调优
 
