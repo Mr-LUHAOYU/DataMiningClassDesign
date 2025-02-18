@@ -35,7 +35,7 @@ class DataSet:
 
 
 class ensemble_model:
-    def __init__(self, n_models=1):
+    def __init__(self, n_models=5):
         self.n_models = n_models
         self.models = [
             lgb.LGBMClassifier(random_state=42)
