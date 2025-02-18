@@ -86,13 +86,13 @@ HadKidneyDisease
 
 另外观察到，BMI 指标是可以由身高和体重直接确定的，该字段存在冗余故舍弃。
 
-两种方法得到的重要性指标值详见  [feature_importance.csv](asserts\feature_importance.csv)  .
+两种方法得到的重要性指标值详见  [feature_importance.csv](asserts/feature_importance.csv)  .
 
-​											$部分重要性指标值$
+部分重要性指标值
 
 ![part_importance](asserts/part_importance.png)
 
-#### 特征重要性条形图
+特征重要性条形图
 
 ![feature_importance](asserts/feature_importance.png)
 
