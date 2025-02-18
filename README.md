@@ -66,13 +66,31 @@ test = pd.concat([test_common, test_rare])
 
 训练一个随机森林分类器，利用 ``feature_importances_`` 属性发现一些与心脏病相关性低的特征：
 
-TODO
+```
+HighRiskLastYear
+DifficultyDressingBathing
+DifficultyErrands
+BlindOrVisionDifficulty 
+DifficultyConcentrating
+LastCheckupTime 
+HadKidneyDisease
+```
 
-接着使用 ``permutation_importance`` 方法确认重要性低的特征，最终结果如下：
+接着使用 ``permutation_importance`` 方法确认重要性低的特征，并考虑到实际意义舍弃以下特征：
 
-TODO
+|       特征       |                理由                |
+| :--------------: | :--------------------------------: |
+| HighRiskLastYear |                                    |
+| LastCheckupTime  | 多年不做检查与心脏病没有直接的关联 |
+| HadKidneyDisease |                                    |
+
+另外观察到，BMI 指标是可以由身高和体重直接确定的，该字段存在冗余故舍弃。
 
 两种方法得到的重要性指标值详见  [feature_importance.csv](asserts\feature_importance.csv)  .
+
+​											$部分重要性指标值$
+
+![part_importance](asserts/part_importance.png)
 
 #### 特征重要性条形图
 
