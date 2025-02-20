@@ -4,7 +4,7 @@ import pandas as pd
 df = pd.read_csv('../dataset/Heart Disease Dataset.csv')
 df.drop(columns=['State'], inplace=True)
 
-exec(open('../constants/map.txt', 'r').read().strip())
+exec(open('../asserts/map.txt', 'r').read().strip())
 
 for col in df.columns:
     if col in text2number:
